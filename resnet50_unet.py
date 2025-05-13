@@ -26,7 +26,6 @@ class IoU(keras.metrics.Metric):
     def update_state(self, y_true, y_pred, sample_weight=None):
         y_pred = tf.argmax(y_pred, axis=-1)
         y_true = tf.squeeze(y_true)  # Remove extra dimension if present
-        
         for i in range(self.num_classes):
             true_i = tf.cast(tf.equal(y_true, i), tf.float32)
             pred_i = tf.cast(tf.equal(y_pred, i), tf.float32)
