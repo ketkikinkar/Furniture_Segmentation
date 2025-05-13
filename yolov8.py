@@ -230,10 +230,10 @@ class MetricsTracker:
         metrics_df = pd.DataFrame(self.metrics)
         metrics_df.to_csv(os.path.join(self.save_dir, 'metrics_history.csv'), index=False)
 
-def train_yolo_model(data_yaml_path, epochs=300, batch_size=32, img_size=640):
+def train_yolo_model(data_yaml_path, epochs=100, batch_size=16, img_size=640):
     """Train YOLO model on the prepared dataset"""
     # Initialize YOLO model
-    model = YOLO('yolov8m-seg.pt')  # Use medium model for better performance
+    model = YOLO('yolov8n-seg.pt')  # Load YOLOv8n-seg model
     
     # Ensure model is in training mode and parameters require gradients
     model.model.train()
@@ -262,11 +262,11 @@ def train_yolo_model(data_yaml_path, epochs=300, batch_size=32, img_size=640):
         device='0' if torch.cuda.is_available() else 'cpu',  # Use GPU if available
         pretrained=True,  # Use pretrained weights
         optimizer='AdamW',  # Use AdamW optimizer
-        lr0=0.0005,  # Lower initial learning rate
+        lr0=0.001,  # Initial learning rate
         lrf=0.01,   # Final learning rate
         momentum=0.937,  # SGD momentum
         weight_decay=0.0005,  # Weight decay
-        warmup_epochs=5,  # Increased warmup epochs
+        warmup_epochs=3,  # Warmup epochs
         warmup_momentum=0.8,  # Warmup momentum
         warmup_bias_lr=0.1,  # Warmup bias learning rate
         box=7.5,  # Box loss gain
@@ -277,21 +277,21 @@ def train_yolo_model(data_yaml_path, epochs=300, batch_size=32, img_size=640):
         nbs=64,  # Nominal batch size
         overlap_mask=True,  # Masks should overlap during training
         mask_ratio=4,  # Mask downsample ratio
-        dropout=0.1,  # Add dropout regularization
+        dropout=0.0,  # Use dropout regularization
         val=True,  # Validate during training
-        amp=True,  # Enable AMP for faster training
+        amp=False,  # Disable AMP for now to fix gradient issues
         deterministic=False,  # Disable deterministic mode
-        workers=4,  # Increase workers for faster data loading
-        close_mosaic=0,  # Enable mosaic augmentation
+        workers=0,  # Reduce workers to prevent potential issues
+        close_mosaic=10,  # Disable mosaic augmentation for final epochs
         cos_lr=True,  # Use cosine learning rate scheduler
-        multi_scale=True,  # Enable multi-scale training
+        multi_scale=False,  # Disable multi-scale training
         single_cls=False,  # Multi-class training
         rect=False,  # Rectangular training
-        cache=True,  # Cache images in memory
+        cache=False,  # Cache images in memory
         exist_ok=False,  # Don't overwrite existing experiment
         resume=False,  # Don't resume from previous checkpoint
         fraction=1.0,  # Use full dataset
-        seed=42,  # Fixed random seed for reproducibility
+        seed=0,  # Random seed
         verbose=True  # Print verbose output
     )
     
